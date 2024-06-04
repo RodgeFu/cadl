@@ -994,6 +994,12 @@ const diagnostics = {
       osx: "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.\nSee instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac",
     },
   },
+  "unnecessary-code": {
+    severity: "warning",
+    messages: {
+      default: "unnecessary code",
+    },
+  },
   // #endregion CLI
 } as const;
 

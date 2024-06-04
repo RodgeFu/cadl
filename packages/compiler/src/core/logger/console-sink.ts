@@ -46,6 +46,8 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
       return color(options, "warning", pc.yellow);
     case "trace":
       return color(options, "trace", pc.green);
+    case "hint":
+      return color(options, "hint", pc.gray);
   }
 }
 

@@ -397,6 +397,9 @@ export function createServer(host: ServerHost): Server {
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
+      if (each.code === "unnecessary-code") {
+        diagnostic.tags = [DiagnosticTag.Unnecessary];
+      }
       diagnostic.data = { id: diagnosticIdCounter++ };
       const diagnostics = diagnosticMap.get(diagDocument);
       compilerAssert(
@@ -874,12 +877,14 @@ export function createServer(host: ServerHost): Server {
     return Range.create(start, end);
   }
 
-  function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
+  function convertSeverity(severity: "warning" | "error" | "hint"): DiagnosticSeverity {
     switch (severity) {
       case "warning":
         return DiagnosticSeverity.Warning;
       case "error":
         return DiagnosticSeverity.Error;
+      case "hint":
+        return DiagnosticSeverity.Hint;
     }
   }
 

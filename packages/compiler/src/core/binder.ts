@@ -516,7 +516,7 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindUsingStatement(statement: UsingStatementNode) {
-    mutate(currentFile.usings).push(statement);
+    mutate(currentFile.usings).set(statement, 0);
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {

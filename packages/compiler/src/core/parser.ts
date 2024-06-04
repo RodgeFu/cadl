@@ -384,7 +384,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         flags: NodeFlags.Synthetic,
       } as any,
       namespaces: [],
-      usings: [],
+      usings: new Map<UsingStatementNode, number>(),
       locals: undefined!,
       inScopeNamespaces: [],
       parseDiagnostics,

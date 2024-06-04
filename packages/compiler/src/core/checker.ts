@@ -202,6 +202,7 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  UsingStatementNode,
   Value,
   VoidType,
 } from "./types.js";
@@ -519,7 +520,7 @@ export function createChecker(program: Program): Checker {
   function setUsingsForFile(file: TypeSpecScriptNode) {
     const usedUsing = new Set<Sym>();
 
-    for (const using of file.usings) {
+    for (const using of file.usings.keys()) {
       const parentNs = using.parent!;
       const sym = resolveTypeReferenceSym(using.name, undefined);
       if (!sym) {
@@ -544,7 +545,7 @@ export function createChecker(program: Program): Checker {
         continue;
       }
       usedUsing.add(namespaceSym);
-      addUsingSymbols(sym.exports!, parentNs.locals!);
+      addUsingSymbols(sym.exports!, parentNs.locals!, using);
     }
   }
 
@@ -597,12 +598,16 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function addUsingSymbols(source: SymbolTable, destination: SymbolTable): void {
+  function addUsingSymbols(
+    source: SymbolTable,
+    destination: SymbolTable,
+    using?: UsingStatementNode
+  ): void {
     const augmented = getOrCreateAugmentedSymbolTable(destination);
     for (const symbolSource of source.values()) {
       const sym: Sym = {
         flags: SymbolFlags.Using,
-        declarations: [],
+        declarations: using ? [using] : [],
         name: symbolSource.name,
         symbolSource: symbolSource,
       };
@@ -3280,7 +3285,20 @@ export function createChecker(program: Program): Checker {
       } else if (globalBinding) {
         return globalBinding;
       } else if (usingBinding) {
-        return usingBinding.flags & SymbolFlags.DuplicateUsing ? undefined : usingBinding;
+        if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
+          return undefined;
+        }
+        if (usingBinding.flags & SymbolFlags.Using) {
+          const usingNode =
+            usingBinding.declarations.length > 0 ? usingBinding.declarations[0] : undefined;
+          if (usingNode?.kind === SyntaxKind.UsingStatement) {
+            const refCount = scope.usings.get(usingNode);
+            if (refCount !== undefined) {
+              scope.usings.set(usingNode, refCount + 1);
+            }
+          }
+        }
+        return usingBinding;
       }
     }
 
@@ -3784,6 +3802,17 @@ export function createChecker(program: Program): Checker {
     for (const statement of file.statements) {
       checkNode(statement, undefined);
     }
+    file.usings.forEach((ref, node) => {
+      if (ref !== undefined && ref === 0) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "unnecessary-code",
+            target: node,
+            codefixes: [],
+          })
+        );
+      }
+    });
   }
 
   /**

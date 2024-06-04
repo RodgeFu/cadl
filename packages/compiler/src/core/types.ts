@@ -1169,7 +1169,7 @@ export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly file: SourceFile;
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   readonly namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
-  readonly usings: readonly UsingStatementNode[];
+  readonly usings: Map<UsingStatementNode, number>;
   readonly comments: readonly Comment[];
   readonly parseDiagnostics: readonly Diagnostic[];
   readonly printable: boolean; // If this ast tree can safely be printed/formatted.
@@ -2106,7 +2106,7 @@ export const NoTarget = Symbol.for("NoTarget");
 export type TypeSpecDiagnosticTarget = Node | Entity | Sym;
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
-export type DiagnosticSeverity = "error" | "warning";
+export type DiagnosticSeverity = "error" | "warning" | "hint";
 
 export interface Diagnostic {
   code: string;
@@ -2313,7 +2313,7 @@ export type DiagnosticFormat<
     : Record<string, unknown>;
 
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
-  readonly severity: "warning" | "error";
+  readonly severity: "warning" | "error" | "hint";
   readonly messages: M;
 }
 
@@ -2599,7 +2599,7 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
   getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
 }
 
-export type LogLevel = "trace" | "warning" | "error";
+export type LogLevel = "trace" | "warning" | "error" | "hint";
 
 export interface LogInfo {
   level: LogLevel;

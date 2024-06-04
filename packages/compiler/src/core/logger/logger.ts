@@ -2,6 +2,7 @@ import { getSourceLocation } from "../diagnostics.js";
 import type { Logger, LogInfo, LogLevel, LogSink, ProcessedLog } from "../types.js";
 
 const LogLevels = {
+  hint: 5,
   trace: 10,
   warning: 40,
   error: 50,
